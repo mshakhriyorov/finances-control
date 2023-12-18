@@ -1,5 +1,17 @@
+import { Metadata } from 'next';
+
 import '@/app/ui/global.css';
+
 import { inter } from '@/app/ui/fonts'
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | Financial Control Dashboard',
+    default: 'Financial Control Dashboard',
+  },
+  description: 'Financial data control CRM, built with Next js',
+  metadataBase: new URL('https://fin-control.vercel.app/dashboard'),
+};
 
 export default function RootLayout({
   children,
