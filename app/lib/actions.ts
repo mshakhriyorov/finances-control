@@ -164,9 +164,7 @@ export async function addUser(_prevState: UserState, formData: FormData) {
 
     const existingUser = await sql`
         SELECT * FROM users WHERE email = ${email}
-    `;
-    console.log(existingUser);
-    
+    `;    
 
     if (existingUser.rows.length > 0) {
         return { message: "Email is already in use." };
