@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import { hash } from 'bcrypt';
 
 const FormSchema = z.object({
     id: z.string(),
@@ -19,18 +20,36 @@ const FormSchema = z.object({
     }),
     date: z.string(),
 });
+const UserFormSchema = z.object({
+    id: z.string(),
+    name: z.string().min(1, { message: "This field has to be filled." }),
+    email: z
+        .string()
+        .min(1, { message: "This field has to be filled." })
+        .email("This is not a valid email."),
+    password: z.string().min(6),
+});
 const invoicesPath = '/dashboard/invoices'
 
 
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
+const AddUser = UserFormSchema.omit({ id: true })
 
-// This is temporary until @types/react-dom is updated
 export type State = {
     errors?: {
         customerId?: string[];
         amount?: string[];
         status?: string[];
+    };
+    message?: string | null;
+};
+
+export type UserState = {
+    errors?: {
+        name?: string[];
+        email?: string[];
+        password?: string[];
     };
     message?: string | null;
 };
@@ -119,9 +138,49 @@ export async function authenticate(_prevState: string | undefined, formData: For
                 case 'CredentialsSignin':
                     return 'Invalid credentials';
                 default:
-                    return 'Something webt wrong';
+                    return 'Something went wrong';
             }
         }
         throw error;
     }
+}
+
+export async function addUser(_prevState: UserState, formData: FormData) {
+    const validatedFields = AddUser.safeParse({
+        name: formData.get('name'),
+        email: formData.get('email'),
+        password: formData.get('password')
+    })
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: 'Missing Fields. Failed to Sign up',
+        };
+    }
+
+    const { name, email, password } = validatedFields.data;
+    const hashedPassword = await hash(password, 10);
+
+    const existingUser = await sql`
+        SELECT * FROM users WHERE email = ${email}
+    `;
+    console.log(existingUser);
+    
+
+    if (existingUser.rows.length > 0) {
+        return { message: "Email is already in use." };
+    } else {
+        try {
+            await sql`
+            INSERT INTO users (name, email, password)
+            VALUES (${name}, ${email}, ${hashedPassword})
+          `;
+        } catch (error) {
+            return { message: "Database Error: Failed to Sign Up." };
+        }
+    }
+
+    revalidatePath(invoicesPath);
+    redirect('/login');
 }
