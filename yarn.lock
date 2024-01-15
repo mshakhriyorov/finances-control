@@ -704,6 +704,11 @@
     utf-8-validate "6.0.3"
     ws "8.14.2"
 
+"@vercel/speed-insights@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@vercel/speed-insights/-/speed-insights-1.0.3.tgz#ae7175e2b9fd37f815519ff555d0eac4c7a0dfad"
+  integrity sha512-bKIt0HDdF6hP2bJZyS+za3k6sKeAXNRLSIUbwVwvyvKdsHBWS6ILBvmD1wXHZZyTqjU1TP7dTE/F6lHM6rBdKA==
+
 "@vercel/style-guide@^5.0.1":
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/@vercel/style-guide/-/style-guide-5.1.0.tgz#93489c46184abf0389a40a674ec38e6cba5d43bf"
